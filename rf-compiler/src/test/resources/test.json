@@ -1,0 +1,123 @@
+{
+  "type": "testsuite",
+  "name": "用户中心测试用例套件",
+  "info": {
+    "ver": "1.0",
+    "tags": ["tag1", "tag2"]
+  },
+  "dependency": {
+    "dataset": {
+      "id": "123",
+      "path": "/tmp/data.csv"
+    }
+  },
+  "testcases": [
+    {
+      "type": "testcase",
+      "name": "用户中心测试用例1",
+      "inputs": [
+
+      ],
+      "steps": [
+        {
+          "type": "call_keyword",
+          "name": "http",
+          "params": [
+            {"name": "api", "value": "/user/v1/add"},
+            {"name": "method", "value": "POST"},
+            {"name": "header", "value": [{"name": "Content-Type", "value": "application/json"}]},
+            {"name": "body", "value": "{\"username\":\"${username}\",\"age\":\"${age}\"}"}
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "http_extract",
+          "params": [
+            {"name": "varname", "value": "username"},
+            {"name": "field", "value": "body"},
+            {"name": "param", "value": "$.username"}
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "http_extract",
+          "params": [
+            {"name": "varname", "value": "code"},
+            {"name": "field", "value": "code"}
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "http_extract",
+          "params": [
+            {"name": "varname", "value": "content_type"},
+            {"name": "field", "value": "header"},
+            {"name": "param", "value": "Content-Type"}
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "my_assert",
+          "params": [
+            {"name": "", "value": "${username}"},
+            {"name": "", "value": "${content_type}"},
+            {"name": "", "value": "${code}"}
+          ]
+        }
+      ]
+    }
+  ],
+  "keywords": [
+    {
+      "type": "keyword",
+      "name": "my_assert",
+      "inputs": [
+        {"name":"username"},
+        {"name":"content_type"},
+        {"name":"code"}
+      ],
+      "steps": [
+        {
+          "type": "loop_in_range",
+          "name": "loop",
+          "beg": 0,
+          "end": 3,
+          "skip": 1,
+          "steps": [
+            {
+             "type": "if_else",
+             "name": "if",
+             "expressions": "${index}==2",
+             "ifTrue": [
+               {
+                "type": "call_keyword",
+                "name": "assert",
+                "params": [
+                  {"name": "expressions", "value": "${code}==200"}
+                ]
+              },
+              {
+                "type": "call_keyword",
+                "name": "set_variable",
+                "params": [
+                  {"name": "name", "value": "new_body"},
+                  {"name": "value", "value": "{\"username\":\"${username}\",\"content-type\":\"${content_type}\"}"}
+                ]
+              },
+              {
+                "type": "call_keyword",
+                "name": "get_field",
+                "params": [
+                  {"name": "name", "value": "new_body"},
+                  {"name": "referenceName", "value": "new_content_type"},
+                  {"name": "expression", "value": "$.content-type"}
+                ]
+              }
+             ]
+           }
+          ]
+        }
+      ]
+    }
+  ]
+}

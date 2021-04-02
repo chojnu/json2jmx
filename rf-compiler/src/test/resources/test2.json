@@ -1,0 +1,73 @@
+{
+  "type": "testsuite",
+  "name": "用户中心测试用例套件",
+  "info": {
+    "ver": "1.0",
+    "tags": ["tag1", "tag2"]
+  },
+  "dependency": {
+    "dataset": {
+      "id": "123",
+      "path": "/tmp/data.csv"
+    }
+  },
+    "env_vars":[
+        {"name":"sss",
+         "value":}
+    ],
+  "testcases": [
+    {
+      "type": "testcase",
+      "name": "用户中心测试用例1",
+      "inputs": [
+      ],
+      "steps": [
+        {
+          "type": "call_keyword",
+          "name": "http",
+          "params": [
+            {"name": "api", "value": "/user/v1/add"},
+            {"name": "method", "value": "POST"},
+            {"name": "header", "value": [{"name": "Content-Type", "value": "application/json"}]},
+              {"name": "body", "type":"", "value": "{\"username\":\"${username}\",\"age\":\"${age}\"}"}
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "http_extract",
+          "params": [
+            {"name": "varname", "value": "username"},
+            {"name": "field", "value": "body"},
+            {"name": "param", "value": "$.username"}
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "http_extract",
+          "params": [
+            {"name": "varname", "value": "code"},
+            {"name": "field", "value": "code"}
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "http_extract",
+          "params": [
+            {"name": "varname", "value": "content_type"},
+            {"name": "field", "value": "header"},
+            {"name": "param", "value": "Content-Type"}
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "my_assert",
+          "params": [
+            {"name": "", "value": "${username}"},
+            {"name": "", "value": "${content_type}"},
+            {"name": "", "value": "${code}"}
+          ]
+        }
+      ]
+    }
+  ]
+}

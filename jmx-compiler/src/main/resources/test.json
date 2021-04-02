@@ -1,0 +1,298 @@
+{
+  "type": "testsuite",
+  "name": "用户中心测试用例套件",
+  "info": {
+    "ver": 1.0,
+    "tag": [
+      "tag1",
+      "tag2"
+    ]
+  },
+  "dependency": {
+    "dataset": {
+      "id": "123",
+      "path": "/tmp/data.csv"
+    }
+  },
+  "testcases": [
+    {
+      "type": "testcase",
+      "name": "用户中心测试用例1",
+      "inputs": [
+        {
+          "name": "username",
+          "datatype": "string",
+          "comment": "姓名"
+        },
+        {
+          "name": "age",
+          "datatype": "integer",
+          "comment": "年龄"
+        }
+      ],
+      "steps": [
+        {
+          "type": "call_keyword",
+          "name": "http",
+          "params": [
+            {
+              "name": "api",
+              "value": "/user/v1/add"
+            },
+            {
+              "name": "method",
+              "value": "POST"
+            },
+            {
+              "name": "header",
+              "value": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            {
+              "name": "body",
+              "value": "{\"username\":\"${username}\",\"age\":\"${age}\"}"
+            }
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "http_extract",
+          "params": [
+            {
+              "name": "",
+              "value": [
+                {
+                  "varname": "username",
+                  "field": "body",
+                  "param": "$.username"
+                },
+                {
+                  "varname": "code",
+                  "field": "code"
+                },
+                {
+                  "varname": "content_type",
+                  "field": "header",
+                  "param": "Content-Type"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "http_assert",
+          "params": [
+            {
+              "name": "",
+              "value": [
+                {
+                  "operator": "regex",
+                  "field": "body",
+                  "param": "$.username",
+                  "value": "username"
+                },
+                {
+                  "operator": "==",
+                  "field": "code",
+                  "value": "200"
+                },
+                {
+                  "operator": "==",
+                  "field": "header",
+                  "param": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "if_else",
+          "name": "if",
+          "expressions": "\"${code}\"==\"200\"",
+          "if_true": [
+            {
+              "type": "call_keyword",
+              "name": "assert",
+              "params": [
+                {
+                  "name": "assertions",
+                  "value": [
+                    {
+                      "field": "${code}",
+                      "operator": "regex",
+                      "value": "200"
+                    },
+                    {
+                      "field": "${content_type}",
+                      "operator": "==",
+                      "value": "application/json"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "if_false": [
+            {
+              "type": "call_keyword",
+              "name": "set_variable",
+              "params": [
+                {
+                  "name": "name",
+                  "value": "new_body"
+                },
+                {
+                  "name": "value",
+                  "value": "{\"username\":\"${username}\",\"content-type\":\"${content_type}\"}"
+                }
+              ]
+            },
+            {
+              "type": "call_keyword",
+              "name": "get_field",
+              "params": [
+                {
+                  "name": "name",
+                  "value": "new_content_type"
+                },
+                {
+                  "name": "referenceName",
+                  "value": "new_body"
+                },
+                {
+                  "name": "expression",
+                  "value": "$.content-type"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "call_keyword",
+          "name": "my_assert",
+          "params": [
+            {
+              "name": "",
+              "value": "${username}"
+            },
+            {
+              "name": "",
+              "value": "${content_type}"
+            },
+            {
+              "name": "",
+              "value": "${code}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "keywords": [
+    {
+      "type": "keyword",
+      "name": "my_assert",
+      "inputs": [
+        {
+          "name": "ma_username"
+        },
+        {
+          "name": "ma_content_type"
+        },
+        {
+          "name": "ma_code"
+        }
+      ],
+      "steps": [
+        {
+          "type": "loop_in_range",
+          "name": "loop",
+          "beg": 0,
+          "end": 3,
+          "skip": 1,
+          "steps": [
+            {
+              "type": "if_assert",
+              "name": "if",
+              "assertions": [
+                {
+                  "field": "${ma_code}",
+                  "operator": "regex",
+                  "value": "200"
+                },
+                {
+                  "field": "${ma_content_type}",
+                  "operator": "==",
+                  "value": "application/json"
+                }
+              ],
+              "if_true": [
+                {
+                  "type": "call_keyword",
+                  "name": "assert",
+                  "params": [
+                    {
+                      "name": "assertions",
+                      "value": [
+                        {
+                          "field": "${ma_code}",
+                          "operator": "regex",
+                          "value": "200"
+                        },
+                        {
+                          "field": "${ma_content_type}",
+                          "operator": "==",
+                          "value": "application/json"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "if_false": [
+                {
+                  "type": "call_keyword",
+                  "name": "set_variable",
+                  "params": [
+                    {
+                      "name": "name",
+                      "value": "new_body"
+                    },
+                    {
+                      "name": "value",
+                      "value": "{\"username\":\"${ma_username}\",\"content-type\":\"${ma_content_type}\"}"
+                    }
+                  ]
+                },
+                {
+                  "type": "call_keyword",
+                  "name": "get_field",
+                  "params": [
+                    {
+                      "name": "varname",
+                      "value": "new_body"
+                    },
+                    {
+                      "name": "refvarname",
+                      "value": "new_content_type"
+                    },
+                    {
+                      "name": "expression",
+                      "value": "$.content-type"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
