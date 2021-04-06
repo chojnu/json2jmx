@@ -8,6 +8,7 @@ public class TestCasePo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String status;
+    private long productVId;
 
     public long getId() {
         return id;
@@ -23,5 +24,13 @@ public class TestCasePo {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public long getProductVId() {
+        return productVId;
+    }
+
+    public void setProductVId(long productVId) {
+        this.productVId = productVId;
     }
 }

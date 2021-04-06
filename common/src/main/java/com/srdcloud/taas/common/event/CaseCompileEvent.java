@@ -97,4 +97,17 @@ public class CaseCompileEvent {
     public void setEventTime(String eventTime) {
         this.eventTime = eventTime;
     }
+
+    @Override
+    public String toString() {
+        return "CaseCompileEvent{" +
+                "caseId=" + caseId +
+                ", recordId='" + recordId + '\'' +
+                ", eventName='" + eventName + '\'' +
+                ", compileFor='" + compileFor + '\'' +
+                ", eventType='" + eventType + '\'' +
+                ", content='" + content + '\'' +
+                ", eventTime='" + eventTime + '\'' +
+                '}';
+    }
 }

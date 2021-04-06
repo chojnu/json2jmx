@@ -28,4 +28,13 @@ public class TestCaseCompileNotify {
     public void setTarget(String target) {
         this.target = target;
     }
+
+    @Override
+    public String toString() {
+        return "TestCaseCompileNotify{" +
+                "caseId=" + caseId +
+                ", recordId='" + recordId + '\'' +
+                ", target='" + target + '\'' +
+                '}';
+    }
 }

@@ -16,12 +16,12 @@
         <dependency>
             <groupId>com.srdcloud.taas</groupId>
             <artifactId>common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.srdcloud.taas</groupId>
             <artifactId>library</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

@@ -70,7 +70,7 @@ public class JmxVisitor implements Visitor {
     public void setVariable(List<Arg> args) {
         String name = args.get(0).getValue().toString().trim();
         String value = args.get(1).getValue().toString().trim();
-        String temp = "vars.put(%s, %s);";
+        String temp = "vars.putObject(%s, %s);";
         String command = JmxUtils.stringFormat(temp, name, value);
         add(JmxUtils.genJSR223Sampler("set variable", command, false));
     }
@@ -91,13 +91,13 @@ public class JmxVisitor implements Visitor {
                 "import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;\n" +
                 "import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;\n" +
                 "import com.fasterxml.jackson.databind.JsonNode;\n" +
-                "String json = vars.get(%s);\n" +
+                "String json = vars.getObject(%s);\n" +
                 "if(json == null) {\n" +
                 "throw new Exception(%s);}\n" +
                 "Configuration conf = Configuration.builder().jsonProvider(new JacksonJsonNodeJsonProvider()).mappingProvider(new JacksonMappingProvider()).build();\n" +
                 "DocumentContext ext = JsonPath.using(conf).parse(json);\n" +
-                "String value = ((JsonNode)ext.read(%s)).textValue();\n" +
-                "vars.put(%s, value);\n";
+                "String value = ((JsonNode)ext.read(%s)).asText();\n" +
+                "vars.putObject(%s, value);\n";
         add(JmxUtils.genJSR223Sampler("get field", JmxUtils.stringFormat(temp, refVarName, "var not found: " + refVarName, expression, varName), false));
     }
 
@@ -187,16 +187,16 @@ public class JmxVisitor implements Visitor {
         if ("header".equals(field)) {
             String tmp = "value = headers.get(%s);\n" +
                     "if(value != null) {\n" +
-                    "vars.put(%s, value);\n" +
+                    "vars.putObject(%s, value);\n" +
                     "}\n";
             script = JmxUtils.stringFormat(tmp, param, varName);
         } else if ("body".equals(field)) {
-            String tmp = "value = ((JsonNode)ext.read(%s)).textValue();\n" +
-                    "vars.put(%s, value);\n";
+            String tmp = "value = ((JsonNode)ext.read(%s)).asText();\n" +
+                    "vars.putObject(%s, value);\n";
             script = JmxUtils.stringFormat(tmp, param, varName);
         } else {
             String tmp = "value = httpResult.get('responseCode');\n" +
-                    "vars.put(%s, value);\n";
+                    "vars.putObject(%s, value);\n";
             script = JmxUtils.stringFormat(tmp, varName);
         }
         return script;
@@ -208,7 +208,7 @@ public class JmxVisitor implements Visitor {
      * @param args 调用自定义关键字时的参数值
      * */
     public String setParam(List<Param> params, List<Arg> args, int _callCnt) {
-        String tmp = "if(vars.get(%s)){vars.put(%s, vars.get(%s));vars.put(%s, %s);}\n";
+        String tmp = "if(vars.getObject(%s)){vars.putObject(%s, vars.getObject(%s));vars.putObject(%s, %s);}\n";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < params.size(); i++) {
             String paramName = params.get(i).getName();
@@ -225,7 +225,7 @@ public class JmxVisitor implements Visitor {
      * @param params 自定义关键字的参数列表
      * */
     public String resetParam(List<Param> params, int _callCnt) {
-        String tmp = "if(vars.get(%s)){vars.put(%s, vars.get(%s));vars.remove(%s);}\n";
+        String tmp = "if(vars.getObject(%s)){vars.putObject(%s, vars.getObject(%s));vars.remove(%s);}\n";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < params.size(); i++) {
             String paramName = params.get(i).getName();
@@ -268,7 +268,7 @@ public class JmxVisitor implements Visitor {
                 tmp = JmxUtils.stringFormat("Object hd_%s = headers.get(%s) %s ;\n", new TextNode(paramName), param, asStr);
                 m.put("field", "hd_" + paramName);
             } else if ("body".equals(field)) {
-                tmp = JmxUtils.stringFormat("Object bd_%s = ((JsonNode)ext.read(%s)).textValue() %s ;\n", new TextNode(paramName), param, asStr);
+                tmp = JmxUtils.stringFormat("Object bd_%s = ((JsonNode)ext.read(%s)).asText() %s ;\n", new TextNode(paramName), param, asStr);
                 m.put("field", "bd_" + paramName);
             } else {
                 tmp = JmxUtils.stringFormat("Object st_code = httpResult.get('responseCode') %s ; \n", asStr) ;

@@ -19,7 +19,9 @@
     <modules>
         <module>common</module>
         <module>jmx-compiler</module>
+        <module>rf-compiler</module>
         <module>library</module>
+        <module>assembly</module>
     </modules>
 
     <properties>
@@ -100,4 +102,17 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

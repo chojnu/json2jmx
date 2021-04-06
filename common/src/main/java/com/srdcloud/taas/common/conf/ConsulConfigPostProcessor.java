@@ -33,13 +33,13 @@ public class ConsulConfigPostProcessor implements BeanPostProcessor {
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         try {
             if (bean instanceof KafkaProperties) {
-                Response<GetValue> valueResponse = client.getKVValue("ServicePublicConfig/KafkaSetting");
+                Response<GetValue> valueResponse = client.getKVValue("taas/ServicePublicConfig/KafkaSetting", properties.getAclToken());
                 initKafkaProp((KafkaProperties) bean, valueResponse.getValue().getDecodedValue());
             } else if (bean instanceof MongoProperties) {
-                Response<GetValue> valueResponse = client.getKVValue("ServicePublicConfig/MongoDBSetting");
+                Response<GetValue> valueResponse = client.getKVValue("taas/ServicePublicConfig/MongoDBSetting", properties.getAclToken());
                 initMongoDBProp((MongoProperties) bean, valueResponse.getValue().getDecodedValue());
             } else if (bean instanceof DataSourceProperties) {
-                Response<GetValue> valueResponse = client.getKVValue("ServicePublicConfig/MysqlSetting");
+                Response<GetValue> valueResponse = client.getKVValue("taas/ServicePublicConfig/MysqlSetting", properties.getAclToken());
                 initMysqlProp((DataSourceProperties) bean, valueResponse.getValue().getDecodedValue());
             }
         } catch (JsonProcessingException e) {
@@ -57,8 +57,12 @@ public class ConsulConfigPostProcessor implements BeanPostProcessor {
 
     public void initMongoDBProp(MongoProperties mongoProperties, String jsonStr) throws JsonProcessingException {
         JsonNode jn = om.readTree(jsonStr);
-        mongoProperties.setHost(jn.get("brokers").asText());
-        mongoProperties.setDatabase(jn.get("dbname").asText());
+        String urlTmp = "mongodb://%s:%s@%s/%s?replicaSet=%s]";
+        mongoProperties.setUri(String.format(urlTmp, jn.get("username").asText(),
+                jn.get("password").asText(),
+                jn.get("brokers").asText(),
+                jn.get("dbname").asText(),
+                jn.get("replicaSet").asText()));
     }
 
     public void initMysqlProp(DataSourceProperties dataSourceProperties, String jsonStr) throws JsonProcessingException {

@@ -23,6 +23,7 @@ import org.apache.jmeter.protocol.http.util.HTTPConstants;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.reporters.ResultCollector;
 import org.apache.jmeter.samplers.SampleSaveConfiguration;
+import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testbeans.gui.TestBeanGUI;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
@@ -33,23 +34,46 @@ import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jmeter.threads.gui.ThreadGroupGui;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.util.JSR223TestElement;
+import org.apache.jorphan.collections.HashTree;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class JmxUtils {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JmxUtils.class);
+    private static volatile boolean INIT_FLAG = false;
 
     /***
      * 初始化生成jmx文件时需要的jmeter属性
-     * @param homeDir 包含jmeter.properties和saveservice.properties文件的目录
      */
-    public static void init(String homeDir) {
-        JMeterUtils.setJMeterHome(new File(homeDir).getAbsolutePath());
-        JMeterUtils.loadJMeterProperties(new File(homeDir + "jmeter.properties").getAbsolutePath());
-        JMeterUtils.setProperty("saveservice_properties", homeDir + "saveservice.properties");
+    public static void init() {
+        if(!INIT_FLAG) {
+            synchronized (JmxUtils.class) {
+                if(!INIT_FLAG) {
+                    URL u = JmxUtils.class.getClassLoader().getResource("");
+                    String cp = u.getPath();
+                    LOG.info("init jmeter properties start, classpath {}", cp);
+                    JMeterUtils.setJMeterHome(new File(cp).getAbsolutePath());
+                    JMeterUtils.loadJMeterProperties(new File(cp + "jmeter.properties").getAbsolutePath());
+                    JMeterUtils.setProperty("saveservice_properties", cp + "saveservice.properties");
+                    INIT_FLAG = true;
+                    LOG.info("init jmeter properties finished");
+                }
+            }
+        }
+    }
+
+    public static void save(HashTree hashTree, String jmxPath) throws IOException {
+        JmxUtils.init();
+        SaveService.saveTree(hashTree, new FileOutputStream(jmxPath));
     }
 
     /***

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class JmxCompileService {
-    private final Logger LOG = LoggerFactory.getLogger(JmxCompileService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JmxCompileService.class);
     @Autowired
     private JmxTestCaseRepository jmxTestCaseRepository;
     @Autowired
@@ -24,7 +24,7 @@ public class JmxCompileService {
             LOG.warn("Could not find testcase");
             return;
         }
-        LOG.info(jmxTestCase.toString());
+        LOG.info("compile testcase {}", jmxTestCase.toString());
         CaseCompileEvent caseCompileEvent = new CaseCompileEvent(caseId, recordId);
         compileEventProducer.writeCompileEventLog(caseCompileEvent.setToCompiling());
         if (jmxTestCase.compile()) {

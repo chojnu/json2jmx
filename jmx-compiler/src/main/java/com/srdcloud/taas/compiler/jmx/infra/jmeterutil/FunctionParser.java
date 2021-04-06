@@ -48,7 +48,7 @@ class FunctionParser {
                 return "'" + StringUtils.replace(o.toString(),"'","\\'") + "'";
             }else{
                 SimpleVariable sv = (SimpleVariable) o;
-                return "vars.get('" + StringUtils.replace(sv.getName(),"'","\\'") + "')";
+                return "vars.getObject('" + StringUtils.replace(sv.getName(),"'","\\'") + "')";
             }
         }
         StringBuilder sb = new StringBuilder();
@@ -59,7 +59,7 @@ class FunctionParser {
                 sb.append(StringUtils.replace(o.toString(),"'","\\'"));
                 sb.append("'");
             } else {
-                sb.append("vars.get('");
+                sb.append("vars.getObject('");
                 SimpleVariable sv = (SimpleVariable) o;
                 sb.append(StringUtils.replace(sv.getName(),"'","\\'"));
                 sb.append("')");
